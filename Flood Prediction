@@ -1,0 +1,280 @@
+# Importing the libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Importing the dataset
+dataset = pd.read_csv('/content/flood.csv')
+X = dataset.iloc[:, [2, 3]].values
+y = dataset.iloc[:, 4].values
+
+#Import dataset
+df = pd.read_csv("/content/flood.csv", header=None)
+
+df.head()
+
+# Splitting the dataset into the Training set and Test set
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
+
+# Fitting Random Forest Classification to the Training set
+from sklearn.ensemble import RandomForestClassifier
+classifier = RandomForestClassifier(n_estimators = 10, criterion = 'entropy', random_state = 0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+# Visualising the Training set results
+from matplotlib.colors import ListedColormap
+X_set, y_set = X_train, y_train
+X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.01),
+                     np.arange(start = X_set[:, 1].min() - 1, stop = X_set[:, 1].max() + 1, step = 0.01))
+plt.contourf(X1, X2, classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
+             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
+plt.xlim(X1.min(), X1.max())
+plt.ylim(X2.min(), X2.max())
+for i, j in enumerate(np.unique(y_set)):
+    plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
+                c = ListedColormap(('red', 'green'))(i), label = j)
+plt.title('Random Forest Classification (training set)')
+plt.xlabel('1')
+plt.ylabel('2')
+plt.legend()
+plt.show()
+
+# Visualising the Test set results
+from matplotlib.colors import ListedColormap
+X_set, y_set = X_test, y_test
+X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.01),
+                     np.arange(start = X_set[:, 1].min() - 1, stop = X_set[:, 1].max() + 1, step = 0.01))
+plt.contourf(X1, X2, classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
+             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
+plt.xlim(X1.min(), X1.max())
+plt.ylim(X2.min(), X2.max())
+for i, j in enumerate(np.unique(y_set)):
+    plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
+                c = ListedColormap(('red', 'green'))(i), label = j)
+plt.title('Random Forest Classification (Test set)')
+plt.xlabel('3')
+plt.ylabel('4')
+plt.legend()
+plt.show()
+
+#Random Forest Classifier on Flood prediction Data Set
+
+#Import libraries
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv) import matplotlib.pyplot as plt # data visualization
+import seaborn as sns # statistical data visualization
+%matplotlib inline
+
+#Import dataset
+df = pd.read_csv("/content/flood.csv", header=None)
+
+# Exploratory data analysis
+# view dimensions of dataset
+
+df.shape
+
+df.head()
+
+#Rename column names
+
+"""
+We can see that the dataset does not have proper column names. The columns are merely labelled as 0,1,2.... and so on. We should give proper names to the columns.
+"""
+
+import pandas as pd
+
+
+# Print original column names
+print("Original column names:'0','1','2','3','4','5' ", df.columns.tolist())
+
+# New column names for the first six columns
+new_column_names = ['Monsoon Intensity', 'Topography Drainage', 'River Management', 'Deforestation', 'Climate Change', 'Urbanization']
+
+# Rename the first six columns
+df.columns = new_column_names + df.columns.tolist()[6:]
+
+# Print new column names
+print("New column names:", df.columns.tolist())
+
+# Save the modified dataframe back to CSV (optional)
+df.to_csv('/content/flood_modified.csv', index=False)
+
+df.head()
+
+# View summary of dataset
+df.info()
+
+#Frequency distribution of values in variables
+
+"""
+Check the frequency counts of categorical variables.
+"""
+
+col_names = ['Monsoon Intensity', 'Topography Drainage', 'River Management', 'Deforestation', 'Climate Change', 'Urbanization']
+for col in col_names:
+
+    print(df[col].value_counts())
+
+#Summary of variables
+
+# Explore class variable
+df['Urbanization'].value_counts()
+
+# check missing values in variables
+df.isnull().sum()
+
+"""
+There are no missing values in the dataset. We have checked the frequency distribution of values previously. It also confirms that there are no missing values in the dataset.
+"""
+
+#Declare feature vector and target variable
+X = df.drop(['Urbanization'], axis=1)
+y = df['Urbanization']
+
+# split data into training and testing sets
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.33, random_state = 42)
+
+# check the shape of X_train and X_test
+X_train.shape, X_test.shape
+
+#Feature Engineering
+
+# check data types in X_train
+X_train.dtypes
+
+# Encode categorical variables
+X_train.head()
+
+#import category_encoders as ce
+from sklearn.preprocessing import OrdinalEncoder
+
+# encode categorical variables with ordinal encoding
+encoder = OrdinalEncoder()
+
+#encoder = OrdinalEncoder(['Monsoon Intensity', 'Topography Drainage', 'River Management', 'Deforestation', 'Climate Change', 'Urbanization'])
+
+X_train = encoder.fit_transform(X_train)
+X_train = pd.DataFrame(X_train)
+
+# Random Forest Classifier model with default parameters
+
+# import Random Forest classifier
+from sklearn.ensemble import RandomForestClassifier
+
+# instantiate the classifier
+rfc = RandomForestClassifier(random_state=0)
+
+# fit the model
+rfc.fit(X_train, y_train)
+
+from sklearn.preprocessing import LabelEncoder
+(encoder) == id(LabelEncoder)
+
+assert X_test.isnull().sum().sum() == 0
+
+# Predict the Test set results
+y_pred = rfc.predict(X_test)
+
+# Check accuracy score
+from sklearn.metrics import accuracy_score
+print('Model accuracy score with 10 decision-trees : {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
+
+#Random Forest Classifier model with parameter n_estimators=100
+
+# instantiate the classifier with n_estimators = 100
+rfc_100 = RandomForestClassifier(n_estimators=100, random_state=0)
+
+# fit the model to the training set
+rfc_100.fit(X_train, y_train)
+
+# Predict on the test set results
+y_pred_100 = rfc_100.predict(X_test)
+
+# Check accuracy score
+print('Model accuracy score with 100 decision-trees : {0:0.4f}'. format(accuracy_score(y_test, y_pred_100)))
+
+#Find important features with Random Forest model
+
+"""
+We will select only the important features, build the model using these features and see its effect on accuracy.
+"""
+
+# create the classifier with n_estimators = 100
+clf = RandomForestClassifier(n_estimators=100, random_state=0)
+
+# fit the model to the training set
+clf.fit(X_train, y_train)
+
+"""
+We will use the feature importance variable to see feature importance score
+"""
+
+# view the feature scores
+feature_scores = pd.Series(clf.feature_importances_, index=X_train.columns).sort_values(ascending=False)
+feature_scores
+
+#Visualize feature scores of the features
+
+# Creating a seaborn bar plot
+sns.barplot(x=feature_scores, y=feature_scores.index)
+# Add labels to the graph
+plt.xlabel('Feature Importance Score')
+plt.ylabel('Features')
+# Add title to the graph
+plt.title("Visualizing Important Features")
+# Visualize the graph
+plt.show()
+
+#Build Random Forest model on selected features
+
+"""
+We will drop the least important feature doors from the model, rebuild the model and check its effect on accuracy.
+"""
+
+# declare feature vector and target variable
+X = df.drop(['Climate Change', 'Urbanization'], axis=1)
+y = df['Climate Change']
+# split data into training and testing sets
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.33, random_state = 42)
+
+# encode categorical variables with ordinal encoding
+encoder = OrdinalEncoder()
+#encoder = OrdinalEncoder(['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety'])
+X_train = encoder.fit_transform(X_train)
+X_train = pd.DataFrame(X_train)
+X_test = encoder.fit_transform(X_test)
+X_test = pd.DataFrame(X_test)
+
+# instantiate the classifier with n_estimators = 100
+clf = RandomForestClassifier(random_state=0)
+
+# fit the model to the training set
+clf.fit(X_train, y_train)
+# Predict on the test set results
+y_pred = clf.predict(X_test)
+
+# Check accuracy score
+print('Model accuracy score with doors variable removed : {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
+
+#Classification Report
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test, y_pred))
+
+
+
+
+
+
+
+#Link For Google Collab Notebook : https://colab.research.google.com/drive/1DViB_dpqxcUiaahlVHAZWGGMX59Ij4Gi?usp=sharing
